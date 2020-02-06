@@ -7843,6 +7843,11 @@ object.values@^1.1.1:
     function-bind "^1.1.1"
     has "^1.0.3"
 
+observable-hooks@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/observable-hooks/-/observable-hooks-2.2.0.tgz#0dfd62c595eb455d42e2584a5e42ee27287431e5"
+  integrity sha512-TPqE+lOCkBRTrMaIT+vWVh4oCKLBtDegrB9Z/sy6WluTEQidrtEjrCCW7ie2JLpxK7VyQZQfcGUhAq44FwDLdA==
+
 obuf@^1.0.0, obuf@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
@@ -9783,7 +9788,7 @@ rxjs@^6.4.0:
   dependencies:
     tslib "^1.9.0"
 
-rxjs@^6.5.3:
+rxjs@^6.5.3, rxjs@^6.5.4:
   version "6.5.4"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.4.tgz#e0777fe0d184cec7872df147f303572d414e211c"
   integrity sha512-naMQXcgEo3csAEGvw/NydRA0fuS2nDZJiw1YUWFKU7aPPAPGZEsD4Iimit96qwCieH6y614MCLYwdkrWx7z/7Q==
