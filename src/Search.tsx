@@ -3,9 +3,9 @@ import {
   pluck,
   withLatestFrom,
   map,
-  mapTo,
   scan,
   startWith,
+  debounceTime,
 } from 'rxjs/operators';
 import { merge, Observable } from 'rxjs';
 import {
@@ -35,37 +35,52 @@ export default function Search({ data }: Props) {
   // current value
   const data$ = useObservable(pluckFirst, [data]);
 
-  // Our first stream will map our text input value to what matches with items from our data
+  // Our first stream will extract the value from the ChangeEvent
   const [handleSearchChange, search$] = useObservableCallback(
     (event$: Observable<ChangeEvent<HTMLInputElement>>) =>
       event$.pipe(
         // same as mapping to event.currentTarget.value
         pluck('currentTarget', 'value'),
-        withLatestFrom(data$),
-        map(([value, data]) => [
-          value,
-          data.filter(item => item.toLowerCase().includes(value.toLowerCase())),
-        ]),
-        // it is ok to use the initial value of the data prop here, it will only get
-        // executed on first render
-        startWith(['', data]),
-        // personal preference but I always separate the command mapping
-        map(([search, results]) => ({ search, results })),
+        map(search => ({ search })),
       ),
   );
 
-  // This is our second stream and will reset the search
-  const [handleReset, reset$] = useObservableCallback(event$ =>
-    event$.pipe(mapTo({ search: '' })),
+  // Our second stream will match the search value with items from our data array
+  const results$ = useObservable(() =>
+    search$.pipe(
+      pluck('search'),
+      debounceTime(300),
+      withLatestFrom(data$),
+      map(([search, data]) =>
+        search
+          ? data.filter(item =>
+              item.toLowerCase().includes(search.toLowerCase()),
+            )
+          : data,
+      ),
+      // personal preference but I always separate the command mapping
+      map(results => ({ results })),
+    ),
   );
 
-  // let's merge our two streams and generate our component state
+  // Our third stream will reset the search and results
+  const [handleReset, reset$] = useObservableCallback(event$ =>
+    event$.pipe(
+      withLatestFrom(data$),
+      map(([, data]) => ({ search: '', results: data })),
+    ),
+  );
+
+  // let's merge our streams and generate our component state
   const { search, results } = useObservableState(
-    merge(search$, reset$).pipe(
+    merge(search$, results$, reset$).pipe(
       scan(
+        // this will keep our state immutable
         (state, command) => ({ ...state, ...command } as SearchState),
         defaultState,
       ),
+      // It's safe to use the data prop here as we only need its initial value
+      startWith({ search: '', results: data }),
     ),
     defaultState,
   );
@@ -76,7 +91,7 @@ export default function Search({ data }: Props) {
       <input type="text" onChange={handleSearchChange} value={search} />
       <input type="button" value="Reset" onClick={handleReset} />
       <ul>
-        {(search ? results : data).map(r => (
+        {results.map(r => (
           <li key={r}>{r}</li>
         ))}
       </ul>
