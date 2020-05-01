@@ -6,6 +6,7 @@ import {
   scan,
   startWith,
   debounceTime,
+  shareReplay,
 } from 'rxjs/operators';
 import { merge, Observable } from 'rxjs';
 import {
@@ -81,6 +82,7 @@ export default function Search({ data }: Props) {
       ),
       // It's safe to use the data prop here as we only need its initial value
       startWith({ search: '', results: data }),
+      shareReplay(1),
     ),
     defaultState,
   );
